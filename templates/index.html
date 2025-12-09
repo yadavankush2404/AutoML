@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoML Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+        input[type=range] {
+            width: 100%;
+            background: transparent;
+            margin: 20px 0;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            border: 1px solid var(--glass-border);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--neon-purple);
+            margin-top: -9px;
+            box-shadow: 0 0 10px var(--neon-purple);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* DATA BAR VISUALIZATION */
+        .split-bar {
+            display: flex;
+            height: 30px;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        .bar-train {
+            background: linear-gradient(90deg, #2563eb, var(--neon-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: black;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        .bar-test {
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+            transition: width 0.5s ease;
+        }
+       
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: #0f172a; 
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 10s infinite alternate;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: var(--neon-purple); }
+        .blob-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #2563eb; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 300px; height: 300px; background: var(--neon-blue); opacity: 0.3; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 50px); }
+        }
+
+ 
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .wizard-header {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 50px;
+            padding-top: 20px;
+            position: relative;
+        }
+
+   
+        .wizard-header::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            z-index: -1;
+        }
+
+        .step-indicator {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--glass-border);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        .step-indicator.active {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            transform: scale(1.1);
+        }
+        
+        .step-indicator.completed {
+            background: var(--neon-blue);
+            color: #000;
+            border-color: var(--neon-blue);
+        }
+
+   
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 30px;
+            animation: slideIn 0.5s ease-out;
+            display: none; 
+        }
+
+        .glass-card.visible {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); scale: 0.98; }
+            to { opacity: 1; transform: translateY(0); scale: 1; }
+        }
+
+        h2 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-top: 0;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+       
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--neon-blue);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        select, input[type="text"], input[type="number"], input[type="file"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 10px rgba(188, 19, 254, 0.3);
+        }
+
+      
+        button, input[type="submit"] {
+            background: linear-gradient(135deg, var(--neon-blue), #2563eb);
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3);
+        }
+
+        button:hover, input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 243, 255, 0.5);
+        }
+
+        .btn-green { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-purple { background: linear-gradient(135deg, #d946ef, #7c3aed); box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3); }
+
+       
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+        }
+        .table-glass {
+            width: 100%;
+            border-collapse: collapse;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        .table-glass th {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            text-align: left;
+            color: var(--neon-blue);
+        }
+        .table-glass td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 5px solid transparent;
+            border-top: 5px solid var(--neon-blue);
+            border-right: 5px solid var(--neon-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .grid-predict { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; }
+
+      
+        .drop-zone {
+            border: 2px dashed var(--glass-border);
+            padding: 50px;
+            text-align: center;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .drop-zone:hover { border-color: var(--neon-blue); background: rgba(0, 243, 255, 0.05); }
+        .drop-zone input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+        
+        .reset-btn {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444; 
+            border: 1px solid #ef4444;
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reset-btn:hover {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+        .custom-alert {
+            padding: 15px;
+            background-color: #f8d7da; 
+            color: #721c24;          
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            position: relative;       
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #721c24;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: black;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div id="loading-overlay">
+        <div class="loader"></div>
+        <div class="loading-text" id="loading-msg">PROCESSING DATA...</div>
+    </div>
+
+    <div class="container">
+        
+        <div class="wizard-header">
+            <div class="step-indicator {% if not columns %}active{% else %}completed{% endif %}">1</div>
+            <div class="step-indicator {% if columns and not plot_url %}active{% elif plot_url %}completed{% endif %}">2</div>
+            <div class="step-indicator {% if plot_url and not metrics %}active{% elif metrics %}completed{% endif %}">3</div>
+            <div class="step-indicator {% if metrics %}active{% endif %}">4</div>
+            <a href="/reset" class ="reset-btn"><span>↻</span>RESET PIPELINE</a>
+        </div>
+
+        {% if error_message %}
+        <div class="custom-alert">
+            <strong>⚠️ Error:</strong> {{ error_message }}
+            <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+        </div>
+        {% endif %}
+
+        <div class="glass-card {% if not metrics %}visible{% endif %}" id="step-1">
+            <h2>
+                <span>01 // Initialize Data</span>
+                <span style="font-size: 0.8rem; opacity: 0.7;">Upload Source</span>
+            </h2>
+
+            <div class="grid-2">
+                <form method="POST" enctype="multipart/form-data" onsubmit="showLoader('Uploading Matrix...')">
+                    <div class="drop-zone">
+                        <input type="file" name="file" accept=".csv" required onchange="this.form.submit()">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">👾</div>
+                        <div style="font-weight: 700; color: #fff;">UPLOAD DATASET (Only all Neumerical value column allowed)</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">.CSV FILES ONLY</div>
+                    </div>
+                </form>
+
+                <div style="display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.2); padding: 30px; border-radius: 20px;">
+                    <h3 style="margin-top: 0; color: var(--neon-purple);">No Data?</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Initialize the system using Heart dataset.</p>
+                    <form method="POST" onsubmit="showLoader('Fetching Sample...')">
+                        <button type="submit" name="use_sample" value="true" class="btn-purple" style="width: 100%;">Load Sample</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if preview_html %}
+            <div style="margin-top: 40px; animation: slideIn 0.5s ease-out;">
+                <label>Data Preview (First 5 Rows)</label>
+                <div class="table-container">
+                    {{ preview_html|safe }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if columns %}
+        <div class="glass-card {% if columns and not metrics %}visible{% endif %}" id="step-2">
+            <h2>
+                <span>02 // Visual Analysis</span>
+                <span style="font-size: 0.8rem; opacity: 0.7;">Exploratory Data Analysis</span>
+            </h2>
+            
+            <form method="POST" onsubmit="showLoader('Generating Visuals...')">
+                <div class="grid-3">
+                    <div>
+                        <label>X - Dimension</label>
+                        <select name="x_column">
+                            {% for col in columns %}<option value="{{ col }}">{{ col }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Y - Dimension</label>
+                        <select name="y_column">
+                            {% for col in columns %}<option value="{{ col }}">{{ col }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Plot Type</label>
+                        <select name="plot_type">
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="histogram">Histogram</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit">Generate Plot</button>
+                </div>
+            </form>
+
+            {% if plot_url %}
+            <div style="margin-top: 30px; text-align: center;">
+                <img src="/{{ plot_url }}" style="max-width: 100%; border-radius: 10px; border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="glass-card {% if columns and not metrics %}visible{% endif %}" id="step-3">
+            <h2>
+                <span>03 // Normalization</span>
+                <span style="font-size: 0.8rem; opacity: 0.7;">Preprocessing</span>
+            </h2>
+            <form method="POST" onsubmit="showLoader('Applying Transforms...')">
+                <div style="display: flex; gap: 20px; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label>Scaler Algorithm</label>
+                        <select name="scaler">
+                            <option value="standard">Standard Scaler (Z-Score)</option>
+                            <option value="minmax">MinMax Scaler (0-1)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-purple">Apply Scaler</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="glass-card {% if columns %}visible{% endif %}" id="step-4">
+            <h2>
+                <span>04 // Train-Test Split</span>
+                <span style="font-size: 0.8rem; opacity: 0.7;">Partition Dataset</span>
+            </h2>
+
+            <form method="POST" onsubmit="showLoader('Partitioning Data...')">
+                <label>Test Set Ratio: <span id="ratio-label" style="color: #fff; font-weight: bold;">20%</span></label>
+                <input type="range" name="split_ratio" min="10" max="50" value="20" oninput="updateSplit(this.value)">
+                
+                <div class="split-bar">
+                    <div class="bar-train" id="bar-train" style="width: 80%;">TRAIN SET</div>
+                    <div class="bar-test" id="bar-test" style="width: 20%;">TEST</div>
+                </div>
+
+                <input type="hidden" name="set_split" value="true">
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit" class="btn-purple">Confirm Split</button>
+                </div>
+            </form>
+
+            {% if split_stats %}
+            <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center;">
+                <div style="background: rgba(37, 99, 235, 0.2); padding: 15px; border-radius: 10px; border: 1px solid #2563eb;">
+                    <div style="font-size: 0.8rem; color: #93c5fd;">TRAINING SAMPLES</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: #fff;">{{ split_stats['train'] }}</div>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; border: 1px solid #fff;">
+                    <div style="font-size: 0.8rem; color: #ccc;">TESTING SAMPLES</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: #fff;">{{ split_stats['test'] }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="glass-card {% if columns %}visible{% endif %}" id="step-4">
+            <h2>
+                <span>04 // Model Training</span>
+                <span style="font-size: 0.8rem; opacity: 0.7;">Algorithm Selection</span>
+            </h2>
+            <form method="POST" onsubmit="showLoader('Training Neural Network...')">
+                <div style="display: flex; gap: 20px; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label>Model Architecture</label>
+                        <select name="model">
+                            <option value="logistic_regression">Logistic Regression</option>
+                            <option value="linear_regression">Linear Regression</option>
+                            <option value="svm">Support Vector Machine</option>
+                            <option value="random_forest">Random Forest</option>
+                            <option value="decision_tree">Decision Tree</option>
+                        </select>
+                    </div>
+                    <button type="submit">Initiate Training</button>
+                </div>
+            </form>
+
+            {% if metrics %}
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed var(--glass-border);">
+                <div class="grid-3" style="text-align: center;">
+                    {% for key, value in metrics.items() %}
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: 1px solid var(--neon-blue);">
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 5px;">{{ key }}</div>
+                        <div style="font-size: 1.5rem; color: var(--neon-blue); font-weight: 700;">{{ value|round(4) if value is number else value }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="grid-2" style="margin-top: 20px;">
+                    <a href="/download_ml_script"><button class="btn-green" style="width: 100%;">Download Script</button></a>
+                    <a href="/save_model"><button class="btn-purple" style="width: 100%;">Download Model</button></a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if metrics %}
+        <div class="glass-card visible" id="step-5" style="border: 1px solid var(--neon-blue);">
+            <h2>
+                <span style="color: var(--neon-blue);">05 // Live Inference</span>
+                <span style="font-size: 0.8rem; opacity: 0.7;">Prediction Engine</span>
+            </h2>
+            
+            <form method="POST" onsubmit="showLoader('Calculating Prediction...')">
+                <div class="grid-predict">
+                    {% for feature in feature_names %}
+                    <div>
+                        <label>{{ feature }}</label>
+                        <input type="number" step="any" name="{{ feature }}" required placeholder="0.0">
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="predict" value="true">
+                <button type="submit" style="width: 100%; margin-top: 20px;">Run Prediction</button>
+            </form>
+
+            {% if prediction_result is not none %}
+            <div style="margin-top: 30px; text-align: center; padding: 30px; background: rgba(0, 243, 255, 0.1); border-radius: 15px; border: 1px solid var(--neon-blue);">
+                <div style="font-size: 0.9rem; letter-spacing: 2px;">OUTPUT CLASS</div>
+                <div style="font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 20px var(--neon-blue);">
+                    {{ prediction_result }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+
+    function showLoader(msg) {
+        const overlay = document.getElementById('loading-overlay');
+        const msgEl = document.getElementById('loading-msg');
+        if (overlay && msgEl) {
+            overlay.style.display = 'flex';
+            msgEl.innerText = msg;
+        }
+    }
+    function updateSplit(val) {
+            document.getElementById('ratio-label').innerText = val + "%";
+            document.getElementById('bar-test').style.width = val + "%";
+            document.getElementById('bar-train').style.width = (100 - val) + "%";
+        }
+
+    window.onload = function() {
+       
+        const hasPrediction = "{{ 'true' if prediction_result is not none else 'false' }}" === "true";
+        const hasMetrics = "{{ 'true' if metrics else 'false' }}" === "true";
+        const hasColumns = "{{ 'true' if columns else 'false' }}" === "true";
+
+   
+        let targetId = null;
+
+        if (hasPrediction) {
+            targetId = 'step-5';
+        } else if (hasMetrics) {
+           
+            targetId = 'step-5'; 
+        } else if (hasColumns) {
+            targetId = 'step-2';
+        }
+
+      
+        if (targetId) {
+            const element = document.getElementById(targetId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.warn('Tried to scroll to #' + targetId + ' but it does not exist.');
+            }
+        }
+    };
+</script>
+
+</body>
+</html>
+
+<!-- <script>
+    // Show loading overlay
+    function showLoader(msg) {
+        const overlay = document.getElementById('loading-overlay');
+        const msgEl = document.getElementById('loading-msg');
+        
+        // Safety check to prevent errors if elements don't exist
+        if (overlay && msgEl) {
+            overlay.style.display = 'flex';
+            msgEl.innerText = msg;
+        }
+    }
+
+    // Scroll Logic
+    window.onload = function() {
+        // 1. Pass Jinja2 variables to JavaScript booleans
+        // VS Code sees these as standard strings, so no errors occur.
+        const hasPrediction = "{{ 'true' if prediction_result is not none else 'false' }}" === "true";
+        const hasMetrics = "{{ 'true' if metrics else 'false' }}" === "true";
+        const hasColumns = "{{ 'true' if columns else 'false' }}" === "true";
+
+        // 2. Standard JavaScript Logic
+        if (hasPrediction) {
+            // Only auto-scroll for the final result
+            const step5 = document.getElementById('step-5');
+            if (step5) step5.scrollIntoView({behavior: 'smooth'});
+
+        } else if (hasMetrics) {
+            // Scroll to results if training is done
+            const step4 = document.getElementById('step-4');
+            if (step4) step4.scrollIntoView({behavior: 'smooth'});
+
+        } else if (hasColumns) {
+            // STOPPED AUTO-SCROLLING to Step 2.
+            // Now you stay at Step 1 to see the Preview Table.
+            console.log("Data loaded. Stay at top.");
+        }
+    };
+</script> -->
