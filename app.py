@@ -207,7 +207,7 @@ def index():
 
     columns = uploaded_data.columns.tolist() if uploaded_data is not None else []
     return render_template(
-        'prev_index.html', 
+        'index.html', 
         columns=columns, 
         plot_url=plot_path, 
         metrics=metrics,
