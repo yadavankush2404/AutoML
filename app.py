@@ -207,7 +207,7 @@ def index():
 
     columns = uploaded_data.columns.tolist() if uploaded_data is not None else []
     return render_template(
-        'index.html', 
+        'prev_index.html', 
         columns=columns, 
         plot_url=plot_path, 
         metrics=metrics,
@@ -348,4 +348,4 @@ def reset_session():
 
 if __name__ == '__main__':
     print("server is running..!")
-    app.run(debug=False)
+    app.run(debug=True)

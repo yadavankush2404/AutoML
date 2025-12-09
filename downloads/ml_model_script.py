@@ -15,7 +15,7 @@ data = pd.read_csv('Google_Drive_Data.csv')
 
 # Plotting
 plt.figure()
-sns.scatterplot(data=data, x='age', y='trestbps')
+sns.scatterplot(data=data, x='age', y='age')
 plt.show()
 plt.close()
 

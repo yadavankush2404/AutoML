@@ -15,63 +15,9 @@
             --text-main: #ffffff;
             --text-muted: #94a3b8;
         }
-        input[type=range] {
-            width: 100%;
-            background: transparent;
-            margin: 20px 0;
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            border: 1px solid var(--glass-border);
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 24px;
-            width: 24px;
-            border-radius: 50%;
-            background: var(--neon-purple);
-            margin-top: -9px;
-            box-shadow: 0 0 10px var(--neon-purple);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
 
-        /* DATA BAR VISUALIZATION */
-        .split-bar {
-            display: flex;
-            height: 30px;
-            width: 100%;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 20px;
-            border: 1px solid var(--glass-border);
-        }
-        .bar-train {
-            background: linear-gradient(90deg, #2563eb, var(--neon-blue));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            color: black;
-            font-weight: bold;
-            transition: width 0.5s ease;
-        }
-        .bar-test {
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            color: white;
-            transition: width 0.5s ease;
-        }
-       
+        * { box-sizing: border-box; }
+        
         body {
             margin: 0;
             font-family: 'Outfit', sans-serif;
@@ -79,8 +25,8 @@
             color: var(--text-main);
             overflow-x: hidden;
             min-height: 100vh;
+            padding-bottom: 40px;
         }
-
 
         .blob {
             position: fixed;
@@ -99,23 +45,26 @@
             100% { transform: translate(30px, 50px); }
         }
 
- 
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            width: 100%;
         }
 
         .wizard-header {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 40px;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             padding-top: 20px;
             position: relative;
+            flex-wrap: wrap; /* Allows wrapping on small screens */
         }
 
-   
+
         .wizard-header::before {
             content: '';
             position: absolute;
@@ -141,6 +90,8 @@
             transition: all 0.3s ease;
             cursor: pointer;
             backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
         }
 
         .step-indicator.active {
@@ -156,7 +107,7 @@
             border-color: var(--neon-blue);
         }
 
-   
+      
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -168,6 +119,7 @@
             margin-bottom: 30px;
             animation: slideIn 0.5s ease-out;
             display: none; 
+            width: 100%;
         }
 
         .glass-card.visible {
@@ -191,6 +143,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap; 
+            gap: 10px;
         }
 
        
@@ -221,7 +175,6 @@
             box-shadow: 0 0 10px rgba(188, 19, 254, 0.3);
         }
 
-      
         button, input[type="submit"] {
             background: linear-gradient(135deg, var(--neon-blue), #2563eb);
             color: #fff;
@@ -234,6 +187,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(0, 243, 255, 0.3);
+            white-space: nowrap; 
         }
 
         button:hover, input[type="submit"]:hover {
@@ -244,18 +198,20 @@
         .btn-green { background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
         .btn-purple { background: linear-gradient(135deg, #d946ef, #7c3aed); box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3); }
 
-       
+        
         .table-container {
-            overflow-x: auto;
+            overflow-x: auto; 
             margin-top: 20px;
             border-radius: 10px;
             border: 1px solid var(--glass-border);
+            -webkit-overflow-scrolling: touch; 
         }
         .table-glass {
             width: 100%;
             border-collapse: collapse;
             color: #ccc;
             font-size: 0.9rem;
+            min-width: 600px;
         }
         .table-glass th {
             background: rgba(255,255,255,0.1);
@@ -268,7 +224,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        
+       
         #loading-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -296,30 +252,34 @@
             font-size: 1.2rem;
             letter-spacing: 3px;
             animation: pulse 1.5s infinite;
+            text-align: center;
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes pulse { 50% { opacity: 0.5; } }
 
-        
+       
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
         .grid-predict { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; }
 
-      
         .drop-zone {
             border: 2px dashed var(--glass-border);
-            padding: 50px;
+            padding: 50px 20px;
             text-align: center;
             border-radius: 20px;
             position: relative;
             cursor: pointer;
             transition: 0.3s;
+            height: 100%; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .drop-zone:hover { border-color: var(--neon-blue); background: rgba(0, 243, 255, 0.05); }
         .drop-zone input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        
+       
         .reset-btn {
             position: absolute;
             right: 0;
@@ -346,6 +306,7 @@
             color: white;
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
         }
+
         .custom-alert {
             padding: 15px;
             background-color: #f8d7da; 
@@ -366,8 +327,125 @@
             cursor: pointer;
         }
 
-        .close-btn:hover {
+       
+        input[type=range] {
+            width: 100%;
+            background: transparent;
+            margin: 20px 0;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            border: 1px solid var(--glass-border);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--neon-purple);
+            margin-top: -9px;
+            box-shadow: 0 0 10px var(--neon-purple);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .split-bar {
+            display: flex;
+            height: 30px;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        .bar-train {
+            background: linear-gradient(90deg, #2563eb, var(--neon-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
             color: black;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        .bar-test {
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+            transition: width 0.5s ease;
+        }
+
+        /* ---------------------------------------------------- */
+        /* --- MEDIA QUERIES (RESPONSIVE DESIGN LOGIC) --- */
+        /* ---------------------------------------------------- */
+
+        @media (max-width: 900px) {
+           
+            .grid-2 { grid-template-columns: 1fr; gap: 20px; }
+            .wizard-header::before { display: none; } 
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            
+           
+            .wizard-header { 
+                gap: 15px; 
+                margin-bottom: 20px;
+                justify-content: space-between;
+            }
+            .step-indicator { width: 40px; height: 40px; font-size: 0.9rem; }
+            
+           
+            .reset-btn {
+                position: static;
+                transform: none;
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+
+           
+            .glass-card { padding: 20px; }
+            h2 { font-size: 1.2rem; flex-direction: column; align-items: flex-start; }
+            h2 span:last-child { margin-top: 5px; }
+
+            
+            form > div[style*="display: flex"] {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+            }
+            
+           
+            .grid-3 { grid-template-columns: 1fr; }
+            .grid-predict { grid-template-columns: 1fr; }
+
+           
+            button, input[type="submit"] { width: 100%; }
+
+            
+            .glass-card > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            
+            .blob { animation: none; opacity: 0.4; }
+            
+            h2 span:first-child { font-size: 1rem; }
+            .drop-zone { padding: 30px 10px; }
+            .drop-zone div[style*="font-size: 3rem"] { font-size: 2rem !important; }
         }
 
     </style>
@@ -390,7 +468,7 @@
             <div class="step-indicator {% if columns and not plot_url %}active{% elif plot_url %}completed{% endif %}">2</div>
             <div class="step-indicator {% if plot_url and not metrics %}active{% elif metrics %}completed{% endif %}">3</div>
             <div class="step-indicator {% if metrics %}active{% endif %}">4</div>
-            <a href="/reset" class ="reset-btn"><span>↻</span>RESET PIPELINE</a>
+            <a href="/reset" class="reset-btn"><span>↻</span>RESET PIPELINE</a>
         </div>
 
         {% if error_message %}
@@ -411,7 +489,7 @@
                     <div class="drop-zone">
                         <input type="file" name="file" accept=".csv" required onchange="this.form.submit()">
                         <div style="font-size: 3rem; margin-bottom: 10px;">👾</div>
-                        <div style="font-weight: 700; color: #fff;">UPLOAD DATASET (Only all Neumerical value column allowed)</div>
+                        <div style="font-weight: 700; color: #fff;">UPLOAD DATASET</div>
                         <div style="font-size: 0.8rem; color: var(--text-muted);">.CSV FILES ONLY</div>
                     </div>
                 </form>
@@ -530,9 +608,9 @@
             {% endif %}
         </div>
 
-        <div class="glass-card {% if columns %}visible{% endif %}" id="step-4">
+        <div class="glass-card {% if columns %}visible{% endif %}" id="step-5">
             <h2>
-                <span>04 // Model Training</span>
+                <span>05 // Model Training</span>
                 <span style="font-size: 0.8rem; opacity: 0.7;">Algorithm Selection</span>
             </h2>
             <form method="POST" onsubmit="showLoader('Training Neural Network...')">
@@ -571,9 +649,9 @@
         {% endif %}
 
         {% if metrics %}
-        <div class="glass-card visible" id="step-5" style="border: 1px solid var(--neon-blue);">
+        <div class="glass-card visible" id="step-6" style="border: 1px solid var(--neon-blue);">
             <h2>
-                <span style="color: var(--neon-blue);">05 // Live Inference</span>
+                <span style="color: var(--neon-blue);">06 // Live Inference</span>
                 <span style="font-size: 0.8rem; opacity: 0.7;">Prediction Engine</span>
             </h2>
             
@@ -604,7 +682,6 @@
     </div>
 
     <script>
-
     function showLoader(msg) {
         const overlay = document.getElementById('loading-overlay');
         const msgEl = document.getElementById('loading-msg');
@@ -613,81 +690,36 @@
             msgEl.innerText = msg;
         }
     }
+    
     function updateSplit(val) {
-            document.getElementById('ratio-label').innerText = val + "%";
-            document.getElementById('bar-test').style.width = val + "%";
-            document.getElementById('bar-train').style.width = (100 - val) + "%";
-        }
+        document.getElementById('ratio-label').innerText = val + "%";
+        document.getElementById('bar-test').style.width = val + "%";
+        document.getElementById('bar-train').style.width = (100 - val) + "%";
+    }
 
     window.onload = function() {
-       
         const hasPrediction = "{{ 'true' if prediction_result is not none else 'false' }}" === "true";
         const hasMetrics = "{{ 'true' if metrics else 'false' }}" === "true";
         const hasColumns = "{{ 'true' if columns else 'false' }}" === "true";
 
-   
         let targetId = null;
 
         if (hasPrediction) {
-            targetId = 'step-5';
+            targetId = 'step-6';
         } else if (hasMetrics) {
-           
-            targetId = 'step-5'; 
+            targetId = 'step-6'; 
         } else if (hasColumns) {
             targetId = 'step-2';
         }
 
-      
         if (targetId) {
             const element = document.getElementById(targetId);
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                console.warn('Tried to scroll to #' + targetId + ' but it does not exist.');
             }
         }
     };
-</script>
+    </script>
 
 </body>
 </html>
-
-<!-- <script>
-    // Show loading overlay
-    function showLoader(msg) {
-        const overlay = document.getElementById('loading-overlay');
-        const msgEl = document.getElementById('loading-msg');
-        
-        // Safety check to prevent errors if elements don't exist
-        if (overlay && msgEl) {
-            overlay.style.display = 'flex';
-            msgEl.innerText = msg;
-        }
-    }
-
-    // Scroll Logic
-    window.onload = function() {
-        // 1. Pass Jinja2 variables to JavaScript booleans
-        // VS Code sees these as standard strings, so no errors occur.
-        const hasPrediction = "{{ 'true' if prediction_result is not none else 'false' }}" === "true";
-        const hasMetrics = "{{ 'true' if metrics else 'false' }}" === "true";
-        const hasColumns = "{{ 'true' if columns else 'false' }}" === "true";
-
-        // 2. Standard JavaScript Logic
-        if (hasPrediction) {
-            // Only auto-scroll for the final result
-            const step5 = document.getElementById('step-5');
-            if (step5) step5.scrollIntoView({behavior: 'smooth'});
-
-        } else if (hasMetrics) {
-            // Scroll to results if training is done
-            const step4 = document.getElementById('step-4');
-            if (step4) step4.scrollIntoView({behavior: 'smooth'});
-
-        } else if (hasColumns) {
-            // STOPPED AUTO-SCROLLING to Step 2.
-            // Now you stay at Step 1 to see the Preview Table.
-            console.log("Data loaded. Stay at top.");
-        }
-    };
-</script> -->
